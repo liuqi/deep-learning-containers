@@ -18,8 +18,10 @@ from docker import APIClient
 from docker import DockerClient
 
 import constants
+import registry
 import logging
 import json
+import os
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -57,6 +59,13 @@ class DockerImage:
         self.to_build = to_build
         self.build_status = None
         self.client = APIClient(base_url=constants.DOCKER_URL, timeout=constants.API_CLIENT_TIMEOUT)
+        # registry.get_docker_registry_login(registry_name)
+        # registry_name = "harbor-repo.vmware.com"
+        registry_name = os.getenv("REGISTRY")
+        # print(registry_name)
+        user_name, password = registry.get_docker_registry_login(registry_name)
+        self.client.login(username=user_name, password=password,
+                       registry=("https://"+registry_name))
         self.log = []
         self._corresponding_common_stage_image = None
         self.target = target

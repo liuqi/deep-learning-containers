@@ -144,8 +144,9 @@ def image_builder(buildspec):
         """
 
         info = {
-            "account_id": str(BUILDSPEC["account_id"]),
-            "region": str(BUILDSPEC["region"]),
+            # "account_id": str(BUILDSPEC["account_id"]),
+            # "region": str(BUILDSPEC["region"]),
+            "registry": str(BUILDSPEC["registry"]),
             "framework": str(BUILDSPEC["framework"]),
             "version": str(BUILDSPEC["version"]),
             "root": str(image_config["root"]),
@@ -206,10 +207,10 @@ def image_builder(buildspec):
     is_any_build_failed, is_any_build_failed_size_limit = show_build_errors(ALL_IMAGES)
 
     # From all images, filter the images that were supposed to be built and upload their metrics
-    BUILT_IMAGES = [image for image in ALL_IMAGES if image.to_build]
+    # BUILT_IMAGES = [image for image in ALL_IMAGES if image.to_build]
 
-    FORMATTER.banner("Upload Metrics")
-    upload_metrics(BUILT_IMAGES, BUILDSPEC, is_any_build_failed, is_any_build_failed_size_limit)
+    # FORMATTER.banner("Upload Metrics")
+    # upload_metrics(BUILT_IMAGES, BUILDSPEC, is_any_build_failed, is_any_build_failed_size_limit)
 
     FORMATTER.banner("Test Env")
     # Set environment variables to be consumed by test jobs
@@ -387,8 +388,8 @@ def build_images(images, make_dummy_boto_client=False):
     # to it is executed concurrently in a separate thread.
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         #### TODO: Remove this entire if block when get_dummy_boto_client is removed ####
-        if make_dummy_boto_client:
-            get_dummy_boto_client()
+        # if make_dummy_boto_client:
+        #     get_dummy_boto_client()
         for image in images:
             THREADS[image.name] = executor.submit(image.build)
     # the FORMATTER.progress(THREADS) function call also waits until all threads have completed
@@ -396,15 +397,15 @@ def build_images(images, make_dummy_boto_client=False):
 
 
 #### TODO: Remove this entire method when https://github.com/boto/boto3/issues/1592 is resolved ####
-def get_dummy_boto_client():
-    """
-    Makes a dummy boto3 client to ensure that boto3 clients behave in a thread safe manner.
-    In absence of this method, the behaviour documented in https://github.com/boto/boto3/issues/1592 is observed.
-    Once https://github.com/boto/boto3/issues/1592 is resolved, this method can be removed.
+# def get_dummy_boto_client():
+#     """
+#     Makes a dummy boto3 client to ensure that boto3 clients behave in a thread safe manner.
+#     In absence of this method, the behaviour documented in https://github.com/boto/boto3/issues/1592 is observed.
+#     Once https://github.com/boto/boto3/issues/1592 is resolved, this method can be removed.
 
-    :return: BotocoreClientSTS
-    """
-    return boto3.client("sts", region_name=os.getenv("REGION"))
+#     :return: BotocoreClientSTS
+#     """
+#     return boto3.client("sts", region_name=os.getenv("REGION"))
 
 
 def push_images(images):
