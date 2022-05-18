@@ -1,0 +1,145 @@
+FROM ubuntu:18.04
+
+LABEL maintainer="VMware AI"
+LABEL dlc_major_version="1"
+
+ARG PYTHON=python3.7
+ARG PYTHON_PIP=python3-pip
+ARG PIP=pip3
+ARG PYTHON_VERSION=3.7.10
+
+# See http://bugs.python.org/issue19846
+ENV LANG=C.UTF-8
+# Python won’t try to write .pyc or .pyo files on the import of source modules
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV LD_LIBRARY_PATH='/usr/local/lib:$LD_LIBRARY_PATH'
+ENV MODEL_BASE_PATH=/models
+ENV BITFUSION_PATH=/bitfusion
+# The only required piece is the model name in order to differentiate endpoints
+ENV MODEL_NAME=model
+ENV DEBIAN_FRONTEND=noninteractive
+
+# nginx + njs
+RUN apt-get update \
+ && apt-get -y install --no-install-recommends \
+    curl \
+    apt-utils \
+    kmod \
+    gnupg2 \
+    ca-certificates \
+    emacs \
+    git \
+    wget \
+    unzip \
+    vim \
+    libbz2-dev \
+    liblzma-dev \
+    libffi-dev \
+    build-essential \
+    zlib1g-dev \
+    openssl \
+    libssl1.1 \
+    libreadline-gplv2-dev \
+    libncursesw5-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    tk-dev \
+    libgdbm-dev \
+    libc6-dev \
+ && curl -s http://nginx.org/keys/nginx_signing.key | apt-key add - \
+ && echo 'deb http://nginx.org/packages/ubuntu/ bionic nginx' >> /etc/apt/sources.list \
+ && apt-get update \
+ && apt-get -y install --no-install-recommends \
+    nginx \
+    nginx-module-njs \
+#  && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+ # Install tensorflow_model_server
+RUN echo 'deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal' >> /etc/apt/sources.list \
+ && curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | apt-key add - \
+ && apt-get update \
+ && apt-get -y install tensorflow-model-server \
+#  && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install python3.7
+RUN wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz \
+ && tar -xvf Python-$PYTHON_VERSION.tgz \
+ && cd Python-$PYTHON_VERSION \
+ && ./configure && make && make install \
+ && rm -rf ../Python-$PYTHON_VERSION*
+
+RUN ${PIP} --no-cache-dir install --upgrade \
+    pip \
+    setuptools
+
+# cython, falcon, gunicorn, grpc
+RUN ${PIP} install --no-cache-dir \
+    boto3 \
+    cython==0.29.14 \
+    falcon==2.0.0 \
+    gunicorn==20.0.4 \
+    gevent==20.9.0 \
+    requests==2.22.0 \
+    grpcio==1.31.0 \
+    protobuf==3.11.1 \
+# using --no-dependencies to avoid installing tensorflow binary
+ && ${PIP} install --no-dependencies --no-cache-dir \
+    tensorflow-serving-api==2.3
+
+# Some TF tools expect a "python" binary
+RUN ln -s $(which ${PYTHON}) /usr/local/bin/python \
+ && ln -s $(which ${PIP}) /usr/bin/pip
+
+# Install Bitfusion and it's packages
+# Start of bitfusion
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+     && sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+     && apt-get update && apt-get install -y --no-install-recommends \
+        wget \
+        uuid-dev \
+        uuid \
+        libcap2-bin \
+        libjsoncpp1 \
+        librdmacm1 \
+        libssl-dev \
+        libibverbs1 \
+        libnuma1 \
+        libcapstone3 \
+        libnl-3-200 \
+        libnl-route-3-200 \
+        open-vm-tools \
+     && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p ${BITFUSION_PATH} \
+ && cd ${BITFUSION_PATH} \
+ && wget https://packages.vmware.com/bitfusion/ubuntu/18.04/bitfusion-client-ubuntu1804_4.5.1-9_amd64.deb \
+ && apt-get install -y ./bitfusion-client-ubuntu1804_4.5.1-9_amd64.deb \
+ && bitfusion version
+
+# Add Bitfusion token between server and client 
+COPY ./ca.crt /bitfusion
+COPY ./client.yaml /bitfusion
+COPY ./servers.conf /bitfusion
+
+RUN mkdir -p ~/.bitfusion \
+     && cp /bitfusion/client.yaml ~/.bitfusion/ \
+     && cp /bitfusion/ca.crt /etc/bitfusion/tls \
+     && cp /bitfusion/servers.conf /etc/bitfusion
+
+# Expose ports
+# gRPC and REST
+EXPOSE 8500 8501
+
+# Set where models should be stored in the container
+RUN mkdir -p ${MODEL_BASE_PATH}
+
+# Create a script that runs the model server so we can use environment variables
+# while also passing in arguments from the docker command line
+RUN echo '#!/bin/bash \n\n' > /usr/bin/tf_serving_entrypoint.sh \
+ && echo 'bitfusion run -n 1 -p 0.3 -- tensorflow_model_server --port=8500 --rest_api_port=8501 --model_name=${MODEL_NAME} --model_base_path=${MODEL_BASE_PATH}/${MODEL_NAME} "$@"' >> /usr/bin/tf_serving_entrypoint.sh \
+ && chmod +x /usr/bin/tf_serving_entrypoint.sh
+
+CMD ["/usr/bin/tf_serving_entrypoint.sh"]
