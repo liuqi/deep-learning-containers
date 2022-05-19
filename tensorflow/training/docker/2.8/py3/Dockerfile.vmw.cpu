@@ -127,8 +127,6 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python \
 
 RUN apt-get update && apt-get -y install protobuf-compiler
 
-# install PyYAML==5.1.2 to avoid conflict with latest awscli
-# # python-dateutil==2.8.0 to satisfy botocore associated with latest awscli
 RUN ${PIP} install --no-cache-dir -U \ 
     pybind11 \
     cmake==3.18.2.post1 \
@@ -148,16 +146,8 @@ RUN ${PIP} install --no-cache-dir -U \
     psutil==5.7.2 \
    "urllib3>1.26.0<1.27.0"
 
-##############################################################################
-#  _____ _____   ___                              ____           _
-# | ____|___ /  |_ _|_ __ ___   __ _  __ _  ___  |  _ \ ___  ___(_)_ __   ___
-# |  _|   |_ \   | || '_ ` _ \ / _` |/ _` |/ _ \ | |_) / _ \/ __| | '_ \ / _ \
-# | |___ ___) |  | || | | | | | (_| | (_| |  __/ |  _ <  __/ (__| | |_) |  __/
-# |_____|____/  |___|_| |_| |_|\__,_|\__, |\___| |_| \_\___|\___|_| .__/ \___|
-#                                    |___/                        |_|
-##############################################################################
-
 FROM common AS e3
+# need to change 'e3'
 
 ARG TF_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow_cpu-2.8.0-cp39-cp39-manylinux2010_x86_64.whl
 
@@ -175,3 +165,4 @@ RUN HOROVOD_WITH_MPI=1 \
 RUN rm -rf /tmp/*
 
 CMD ["/bin/bash"]
+
