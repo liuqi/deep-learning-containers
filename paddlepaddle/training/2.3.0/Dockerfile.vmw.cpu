@@ -3,8 +3,6 @@ FROM ubuntu:20.04 AS common
 LABEL maintainer="VMware AI"
 LABEL dlc_major_version="1"
 
-
-
 # prevent stopping by user interaction
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
@@ -126,7 +124,6 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python \
 
 RUN apt-get update && apt-get -y install protobuf-compiler
 
-
 RUN ${PIP} install --no-cache-dir -U \ 
     pybind11 \
     cmake==3.18.2.post1 \
@@ -148,12 +145,9 @@ RUN ${PIP} install --no-cache-dir -U \
 
 FROM common AS e3
 
-
 ARG PD_URL=https://paddle-wheel.bj.bcebos.com/2.3.0/linux/linux-cpu-mkl-avx/paddlepaddle-2.3.0-cp39-cp39-linux_x86_64.whl
 
-
 RUN ${PIP} install ${PD_URL}
-
 
 # remove tmp files
 RUN rm -rf /tmp/*
