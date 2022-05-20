@@ -8,8 +8,6 @@ ARG PYTHON=python3.9
 ARG PYTHON_PIP=python3-pip
 ARG PIP=pip3
 ARG PYTHON_VERSION=3.9.10
-# ARG TFS_URL=https://framework-binaries.s3.us-west-2.amazonaws.com/tensorflow_serving/r2.8_aws/cpu/2022-02-02-00-33/tensorflow_model_server
-# 改为直接apt-get
 
 # ENV variable to be passed to SageMaker stage
 ENV PIP=${PIP}
@@ -81,11 +79,9 @@ RUN ${PIP} install --no-cache-dir \
 RUN ln -s $(which ${PYTHON}) /usr/local/bin/python \
  && ln -s $(which ${PIP}) /usr/bin/pip
 
-
 # RUN curl $TFS_URL -o /usr/bin/tensorflow_model_server \
 #  && chmod 555 /usr/bin/tensorflow_model_server
 
-# use apt-get
 # Install tensorflow_model_server
 RUN echo 'deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal' >> /etc/apt/sources.list \
  && curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | apt-key add - \
