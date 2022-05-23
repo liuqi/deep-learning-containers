@@ -1,0 +1,99 @@
+
+FROM ubuntu:20.04 AS e3
+# need to change "e3"
+
+LABEL maintainer="VMware AI"
+LABEL dlc_major_version="1"
+
+ARG PYTHON_VERSION=3.8.10
+ARG MMS_VERSION=1.1.8
+ARG MX_URL=https://repo.mxnet.io/dist/python/cpu/mxnet-1.9.0-py3-none-manylinux2014_x86_64.whl
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib" \
+    PYTHONIOENCODING=UTF-8 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    TEMP=/home/model-server/tmp \
+    DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get -y upgrade --only-upgrade systemd \
+ && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    emacs \
+    git \
+    libopencv-dev \
+    openjdk-8-jdk-headless \
+    openjdk-8-jdk \
+    openjdk-8-jre \
+    vim \
+    wget \
+    unzip \
+    zlib1g-dev \
+    libreadline-gplv2-dev \
+    libncursesw5-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    libgdbm-dev \
+    libc6-dev \
+    libbz2-dev \
+    tk-dev \
+    libffi-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# install Python
+RUN apt-get update \
+ && apt-get install -y python3 python3-pip \
+ && rm -rf /usr/bin/python /usr/bin/pip \
+ && ln -s /usr/bin/python3 /usr/bin/python \
+ && ln -s /usr/bin/pip3 /usr/bin/pip
+
+WORKDIR /
+
+RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+ && pip install --no-cache-dir \
+    # "awscli<2" \
+    boto3 \
+    ${MX_URL} \
+    gluonnlp==0.10.0 \
+    gluoncv==0.8.0 \
+    multi-model-server==$MMS_VERSION \
+    "numpy<1.20" \
+    onnx==1.8.1
+
+# This is here to make our installed version of OpenCV work.
+# https://stackoverflow.com/questions/29274638/opencv-libdc1394-error-failed-to-initialize-libdc1394
+# TODO: Should we be installing OpenCV in our image like this? Is there another way we can fix this?
+RUN ln -s /dev/null /dev/raw1394
+
+RUN useradd -m model-server \
+ && mkdir -p /home/model-server/tmp \
+ && chown -R model-server /home/model-server
+
+# COPY mms-e3-entrypoint.py /usr/local/bin/dockerd-entrypoint.py
+# COPY config.properties /home/model-server
+# try to write these 2 files manully
+RUN echo "import shlex">> /usr/local/bin/dockerd-entrypoint.py\
+ && echo "import subprocess">> /usr/local/bin/dockerd-entrypoint.py\
+ && echo "import sys" >> /usr/local/bin/dockerd-entrypoint.py\
+ && echo "import os.path">> /usr/local/bin/dockerd-entrypoint.py\
+ && echo "subprocess.check_call(shlex.split(' '.join(sys.argv[1:])))">> /usr/local/bin/dockerd-entrypoint.py\
+ && echo "subprocess.call(['tail', '-f', '/dev/null'])">> /usr/local/bin/dockerd-entrypoint.py
+
+RUN echo 'vmargs=-XX:+UseContainerSupport -XX:InitialRAMPercentage=8.0 -XX:MaxRAMPercentage=10.0 -XX:-UseLargePages -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError'\
+ >>/home/model-server/config.properties\
+ && echo 'model_store=/opt/ml/model' >>/home/model-server/config.properties\
+ && echo 'load_models=ALL'>>/home/model-server/config.properties\
+ && echo 'inference_address=http://0.0.0.0:8080'>>/home/model-server/config.properties\
+ && echo 'management_address=http://0.0.0.0:8081'>>/home/model-server/config.properties
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.py
+
+EXPOSE 8080 8081
+ENTRYPOINT ["python", "/usr/local/bin/dockerd-entrypoint.py"]
+CMD ["multi-model-server", "--start", "--mms-config", "/home/model-server/config.properties"]
