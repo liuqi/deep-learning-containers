@@ -16,16 +16,15 @@ This project is licensed under the Apache-2.0 License.
 
  [Building your Image](#building-your-image)
 
- [Running Tests Locally](#running-tests-locally)
+ [Running object detection workload](#Running-object-detection-workload-by-the-above-container-image)
 
 ### Getting started
 
-We describe here the setup to build and test the DLCs.
+We describe here the setup to build and use the DLCs to run workload.
 
-We take an example of building a ***Pytorch GPU python3 training*** container.
+We take an example of building a ***Pytorch CPU python3 inference*** container.
 
-* Ensure you have access to an harbor-repo account. [website](https://harbor-repo.vmware.com/)  
-* Export an repository with the name “pytorch-inference”.
+* Ensure you have access to an harbor-repo account [website](https://harbor-repo.vmware.com/) 
 * Ensure you have [docker](https://docs.docker.com/get-docker/) client set-up on your system.
 
 1. Clone the repo and set the following environment variables: 
@@ -119,7 +118,6 @@ docker_file key for each repository.
 
 4. New a terminal, download the pre-trained fast-rcnn object detection model's state_dict, generate model and start model by torchserve in this new terminal
     ```shell script
-    wget -c https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.pth -P ./models
     # Download FastRCNN model weights 
     cd /torchserve_od_sample
     sh scripts/get_fastrcnn.sh
