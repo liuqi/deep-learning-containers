@@ -144,7 +144,7 @@ def image_builder(buildspec):
         """
 
         info = {
-            # "account_id": str(BUILDSPEC["account_id"]),
+            "account": str(BUILDSPEC["account"]),
             # "region": str(BUILDSPEC["region"]),
             "registry": str(BUILDSPEC["registry"]),
             "framework": str(BUILDSPEC["framework"]),
