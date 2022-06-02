@@ -52,7 +52,7 @@ We take an example of building a ***Pytorch CPU python3 inference*** container.
     bash src/setup.sh pytorch
     ```
 
-##### Note: This is an example as below: first build (pytorch inference cpu) image, second run object detection sample by this image.
+#### Note: This is an example as below: first build ***Pytorch inference CPU python3*** container image, second run ***object detection sample*** by this image.
 ### Building your image
 
 The paths to the dockerfiles follow a specific pattern e.g., pytorch/inference/docker/\<version>/\<python_version>/Dockerfile.<processor>
