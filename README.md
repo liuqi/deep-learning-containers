@@ -51,6 +51,8 @@ We take an example of building a ***Pytorch CPU python3 inference*** container.
     ```shell script
     bash src/setup.sh pytorch
     ```
+
+##### Note: This is an example as below: first build (pytorch inference cpu) image, second run object detection sample by this image.
 ### Building your image
 
 The paths to the dockerfiles follow a specific pattern e.g., pytorch/inference/docker/\<version>/\<python_version>/Dockerfile.<processor>
@@ -59,14 +61,7 @@ These paths are specified by the buildspec.yml residing in pytorch/buildspec.yml
 If you want to build the dockerfile for a particular version, or introduce a new version of the framework, re-create the 
 folder structure as per above and modify the buildspec.yml file to specify the version of the dockerfile you want to build.
 
-1. To build all the dockerfiles specified in the buildspec.yml locally, use the command
-    ```shell script
-    python src/main.py --buildspec pytorch/buildspec.yml --framework pytorch
-    ``` 
-    The above step should take a while to complete the first time you run it since it will have to download all base layers 
-    and create intermediate layers for the first time. 
-    Subsequent runs should be much faster.
-2. If you would instead like to build only a single image
+1. If you would instead like to build only a single image
     ```shell script
     python src/main.py --buildspec pytorch/buildspec.yml \
                        --framework pytorch \
@@ -74,35 +69,15 @@ folder structure as per above and modify the buildspec.yml file to specify the v
                        --device_types cpu \
                        --py_versions py3
     ```
-3. The arguments —image_types, —device_types and —py_versions are all comma separated list who’s possible values are as follows:
+    The above step should take a while to complete the first time you run it since it will have to download all base layers 
+    and create intermediate layers for the first time. 
+    Subsequent runs should be much faster.
+2. The arguments —image_types, —device_types and —py_versions are all comma separated list who’s possible values are as follows:
     ```shell script
     --image_types <training/inference>
     --device_types <cpu/gpu>
     --py_versions <py2/py3>
     ```
-
-### Upgrading the framework version
-1. Suppose, if there is a new framework version for Pytorch (version 1.11.0) then this would need to be changed in the 
-buildspec.yml file for Pytorch.
-    ```yaml
-    # pytorch/buildspec.yml
-      1   registry: &REGISTRY <set-$REGISTRY-in-environment>
-      3   framework: &FRAMEWORK pytorch
-      4   version: &VERSION 1.10.0 *<--- Change this to 1.11.0*
-          ................
-    ```
-2. The dockerfile for this should exist at pytorch/docker/1.11/py3/Dockerfile.cpu. This path is dictated by the 
-docker_file key for each repository. 
-    ```yaml
-    # pytorch/buildspec.yml
-     41   images:
-     42     BuildPyTorchCPUPTInferencePy3DockerImage:
-     43       <<: *TRAINING_REPOSITORY
-              ...................
-     49       docker_file: !join [ docker/, *VERSION, /, *DOCKER_PYTHON_VERSION, /Dockerfile., *DEVICE_TYPE ]
-     
-    ```
-3. Build the container as described above.
 
 ### Running object detection workload by the above container image
 1. Obtain object detection model and sample from github
