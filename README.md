@@ -106,5 +106,5 @@ folder structure as per above and modify the buildspec.yml file to specify the v
     ```shell script
     curl http://127.0.0.1:8080/predictions/fastrcnn -T ./samples/Naxos_Taverna.jpg
     ```
-   Or iteratively run the "object_dectection.ipynb" notebook.
+   Or iteratively run the "torchserve_od_sample/object_dectection.ipynb" notebook.
 
