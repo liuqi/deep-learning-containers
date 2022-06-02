@@ -1,6 +1,5 @@
 ARG PYTHON=python3
 ARG PYTHON_VERSION=3.8.13
-ARG MAMBA_VERSION=4.12.0-0
 
 # PyTorch Binaries
 ARG PT_INFERENCE_URL=https://download.pytorch.org/whl/cpu/torch-1.11.0%2Bcpu-cp38-cp38-linux_x86_64.whl
@@ -10,8 +9,7 @@ ARG PT_TORCHVISION_URL=https://download.pytorch.org/whl/cpu/torchvision-0.12.0%2
 ARG PT_TORCHAUDIO_URL=https://download.pytorch.org/whl/cpu/torchaudio-0.11.0%2Bcpu-cp38-cp38-linux_x86_64.whl
 
 
-FROM ubuntu:20.04 AS e3
-# need to change "e3"
+FROM ubuntu:20.04
 
 LABEL maintainer="VMware AI"
 LABEL dlc_major_version="1"
@@ -19,7 +17,6 @@ LABEL dlc_major_version="1"
 ARG PYTHON
 ARG PYTHON_VERSION
 ARG OPEN_MPI_VERSION=4.0.1
-ARG MAMBA_VERSION
 
 # PyTorch Binaries
 ARG PT_INFERENCE_URL
