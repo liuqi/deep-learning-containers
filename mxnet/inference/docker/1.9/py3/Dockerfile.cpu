@@ -1,5 +1,5 @@
-FROM ubuntu:20.04 AS e3
-# need to change "e3"
+
+FROM ubuntu:20.04
 
 LABEL maintainer="VMware AI"
 LABEL dlc_major_version="1"
