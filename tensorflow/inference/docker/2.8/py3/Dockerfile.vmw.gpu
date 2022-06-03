@@ -4,7 +4,6 @@ ARG TF_SERVING_BUILD_IMAGE=tensorflow/serving:${TF_SERVING_VERSION}-devel-gpu
 FROM ${TF_SERVING_BUILD_IMAGE} as build_image
 FROM nvidia/cuda:11.2.1-base-ubuntu20.04 
 
-
 LABEL maintainer="Vmware AI"
 LABEL dlc_major_version="1"
 
@@ -13,10 +12,8 @@ ARG PYTHON_PIP=python3-pip
 ARG PIP=pip3
 ARG PYTHON_VERSION=3.9.10
 
-
 ENV PIP=${PIP}
 ENV PYTHON=${PYTHON}
-
 
 ENV NCCL_VERSION=2.8.4-1+cuda11.2
 ENV CUDNN_VERSION=8.1.0.77-1+cuda11.2
@@ -87,7 +84,6 @@ RUN wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSIO
 RUN ${PIP} --no-cache-dir install --upgrade \
     pip \
     setuptools
-
 
 # Install TensorRT 
 # see https://github.com/NVIDIA/TensorRT/blob/master/docker/ubuntu-20.04.Dockerfile
