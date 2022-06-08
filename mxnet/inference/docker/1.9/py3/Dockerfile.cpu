@@ -56,7 +56,6 @@ WORKDIR /
 
 RUN pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org \
  && pip install --no-cache-dir \
-    # "awscli<2" \
     boto3 \
     ${MX_URL} \
     gluonnlp==0.10.0 \
