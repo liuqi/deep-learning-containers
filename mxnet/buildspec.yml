@@ -17,28 +17,6 @@ repository_info:
     repository_name: &REPOSITORY_NAME !join [pr, "-", *FRAMEWORK, "-", *INFERENCE_IMAGE_TYPE]
     repository: &REPOSITORY !join [ *REGISTRY, /, *ACCOUNT, /, *REPOSITORY_NAME ]
 
-# context:
-#   training_context: &TRAINING_CONTEXT
-#     entrypoint:
-#       source: docker/artifacts/dockerd-entrypoint.py
-#       target: dockerd-entrypoint.py
-#     deep_learning_container:
-#       source: ../../src/deep_learning_container.py
-#       target: deep_learning_container.py
-#   inference_context: &INFERENCE_CONTEXT
-#     config:
-#       source: docker/artifacts/config.properties
-#       target: config.properties
-#     entrypoint:
-#       source: docker/artifacts/mms-entrypoint.py
-#       target:  mms-entrypoint.py
-#     e3-entrypoint:
-#       source: docker/artifacts/mms-entrypoint.py
-#       target: mms-e3-entrypoint.py
-#     deep_learning_container:
-#       source: ../../src/deep_learning_container.py
-#       target: deep_learning_container.py
-
 images:
   BuildMXNetCPUTrainPy3DockerImage:
     <<: *TRAINING_REPOSITORY

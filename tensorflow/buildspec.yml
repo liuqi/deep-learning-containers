@@ -16,28 +16,6 @@ repository_info:
     repository_name: &REPOSITORY_NAME !join [pr, "-", *FRAMEWORK, "-", *INFERENCE_IMAGE_TYPE]
     repository: &REPOSITORY !join [ *REGISTRY, /,  *ACCOUNT, /,
       *REPOSITORY_NAME ]
-# context:
-#   training_context: &TRAINING_CONTEXT
-#     dockerd-entrypoint:
-#       source: docker/build_artifacts/dockerd-entrypoint.py
-#       target: dockerd-entrypoint.py
-#     deep_learning_container:
-#       source: ../../src/deep_learning_container.py
-#       target: deep_learning_container.py
-#   inference_context: &INFERENCE_CONTEXT
-#     sagemaker_package_name:
-#       source: docker/build_artifacts/sagemaker
-#       target: sagemaker
-#     init:
-#       source: docker/build_artifacts/__init__.py
-#       target: __init__.py
-#     dockerd-entrypoint:
-#       source: docker/build_artifacts/dockerd-entrypoint.py
-#       target: dockerd-entrypoint.py
-#     deep_learning_container:
-#       source: ../../src/deep_learning_container.py
-#       target: deep_learning_container.py
-
 images:
   BuildTensorflowGpuPy39Cu112TrainingDockerImage:
     <<: *TRAINING_REPOSITORY
