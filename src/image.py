@@ -59,10 +59,7 @@ class DockerImage:
         self.to_build = to_build
         self.build_status = None
         self.client = APIClient(base_url=constants.DOCKER_URL, timeout=constants.API_CLIENT_TIMEOUT)
-        # registry.get_docker_registry_login(registry_name)
-        # registry_name = "harbor-repo.vmware.com"
         registry_name = os.getenv("REGISTRY")
-        # print(registry_name)
         user_name, password = registry.get_docker_registry_login(registry_name)
         self.client.login(username=user_name, password=password,
                        registry=("https://"+registry_name))

@@ -145,7 +145,6 @@ def image_builder(buildspec):
 
         info = {
             "account": str(BUILDSPEC["account"]),
-            # "region": str(BUILDSPEC["region"]),
             "registry": str(BUILDSPEC["registry"]),
             "framework": str(BUILDSPEC["framework"]),
             "version": str(BUILDSPEC["version"]),
