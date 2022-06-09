@@ -31,11 +31,11 @@ We take an example of building a ***Pytorch CPU python3 inference*** container.
     ```shell script
     export REGISTRY=harbor-repo.vmware.com
     export REPOSITORY_NAME=pytorch-inference
-    export ACCOUNT=<YOUR_ACCOUNT>
-    ``` 
+    export ACCOUNT=dlc
+    ```
 2. Login to harbor-repo
     ```shell script
-    docker login harbor-repo.vmware.com -u 'account_username'
+    docker login harbor-repo.vmware.com -u 'username'
     ``` 
 3. Assuming your working directory is the cloned repo, create a virtual environment to use the repo and install requirements
     ```shell script
