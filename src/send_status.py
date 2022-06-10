@@ -19,17 +19,17 @@ def get_args():
     return parser.parse_args()
 
 
-def get_target_url(project):
-    """
-    Set the link for "Details" on PR builds
+# def get_target_url(project):
+#     """
+#     Set the link for "Details" on PR builds
 
-    :param project: CodeBuild project name associated with the running build
-    :return: Link for the "Details" link associated with a GitHub status check
-    """
-    region = os.getenv("AWS_REGION")
-    logpath = os.getenv("CODEBUILD_LOG_PATH")
-    return f"https://{region}.console.aws.amazon.com/codesuite/codebuild/projects/{project}/build/{project}%3A{logpath}" \
-           f"/log?region={region}"
+#     :param project: CodeBuild project name associated with the running build
+#     :return: Link for the "Details" link associated with a GitHub status check
+#     """
+#     region = os.getenv("AWS_REGION")
+#     logpath = os.getenv("CODEBUILD_LOG_PATH")
+#     return f"https://{region}.console.aws.amazon.com/codesuite/codebuild/projects/{project}/build/{project}%3A{logpath}" \
+#            f"/log?region={region}"
 
 
 def set_build_description(state, project):
@@ -61,7 +61,7 @@ def post_status(state):
         return
 
     project_name = utils.get_codebuild_project_name()
-    target_url = get_target_url(project_name)
+    # target_url = get_target_url(project_name)
 
     test_context = os.getenv("TEST_TYPE")
 

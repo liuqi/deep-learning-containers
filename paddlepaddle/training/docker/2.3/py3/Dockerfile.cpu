@@ -3,9 +3,6 @@ FROM ubuntu:20.04 AS common
 LABEL maintainer="VMware AI"
 LABEL dlc_major_version="1"
 
-# TensorFlow major.minor version 
-ENV TF_VERSION=2.8
-
 # prevent stopping by user interaction
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
@@ -29,7 +26,6 @@ ARG PYTHON_VERSION=3.9.10
 
 ARG PIP=pip3
 
-# To be passed to e3 and sagemaker stages
 ENV PYTHON=${PYTHON}
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 ENV PIP=${PIP}
@@ -148,17 +144,9 @@ RUN ${PIP} install --no-cache-dir -U \
 
 FROM common
 
-ARG TF_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow_cpu-2.8.0-cp39-cp39-manylinux2010_x86_64.whl
+ARG PD_URL=https://paddle-wheel.bj.bcebos.com/2.3.0/linux/linux-cpu-mkl-avx/paddlepaddle-2.3.0-cp39-cp39-linux_x86_64.whl
 
-RUN ${PIP} install --no-cache-dir -U \
-    ${TF_URL} \
-    tensorflow-io==0.24.0 \
-    tensorflow-datasets==4.5.2
-
-# Install Horovod with TensorFlow
-RUN HOROVOD_WITH_MPI=1 \
-   && HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITHOUT_MXNET=1 HOROVOD_WITHOUT_PYTORCH=1 \
-   && ${PIP} install --no-cache-dir horovod==0.23.0
+RUN ${PIP} install ${PD_URL}
 
 # remove tmp files
 RUN rm -rf /tmp/*

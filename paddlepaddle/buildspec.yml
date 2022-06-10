@@ -1,8 +1,8 @@
 registry: &REGISTRY <set-$REGISTRY-in-environment>
 account: &ACCOUNT <set-$REGISTRY-in-environment>
-framework: &FRAMEWORK tensorflow
-version: &VERSION 2.8.0
-short_version: &SHORT_VERSION 2.8
+framework: &FRAMEWORK paddlepaddle
+version: &VERSION 2.3.0
+short_version: &SHORT_VERSION 2.3
 repository_info:
   training_repository: &TRAINING_REPOSITORY
     image_type: &TRAINING_IMAGE_TYPE training
@@ -17,9 +17,9 @@ repository_info:
     repository: &REPOSITORY !join [ *REGISTRY, /,  *ACCOUNT, /,
       *REPOSITORY_NAME ]
 images:
-  BuildTensorflowGpuPy39Cu112TrainingDockerImage:
+  BuildPaddlepaddleGpuPy39Cu112TrainingDockerImage:
     <<: *TRAINING_REPOSITORY
-    build: &TENSORFLOW_GPU_TRAINING_PY3 false
+    build: &PADDLEPADDLE_GPU_TRAINING_PY3 false
     image_size_baseline: &IMAGE_SIZE_BASELINE 10000
     device_type: &DEVICE_TYPE gpu
     python_version: &DOCKER_PYTHON_VERSION py3
@@ -34,9 +34,9 @@ images:
     enable_test_promotion: true
     # context:
     #   <<: *TRAINING_CONTEXT
-  BuildTensorflowCpuPy39TrainingDockerImage:
+  BuildPaddlepaddleCpuPy39TrainingDockerImage:
     <<: *TRAINING_REPOSITORY
-    build: &TENSORFLOW_CPU_TRAINING_PY3 false
+    build: &PADDLEPADDLE_CPU_TRAINING_PY3 false
     image_size_baseline: &IMAGE_SIZE_BASELINE 3700
     device_type: &DEVICE_TYPE cpu
     python_version: &DOCKER_PYTHON_VERSION py3
@@ -49,9 +49,9 @@ images:
     enable_test_promotion: true
     # context:
     #   <<: *TRAINING_CONTEXT
-  BuildTensorflowCPUInferencePy3DockerImage:
+  BuildPaddlepaddleCPUInferencePy3DockerImage:
     <<: *INFERENCE_REPOSITORY
-    build: &TENSORFLOW_CPU_INFERENCE_PY3 false
+    build: &PADDLEPADDLE_CPU_INFERENCE_PY3 false
     image_size_baseline: 4899
     device_type: &DEVICE_TYPE cpu
     python_version: &DOCKER_PYTHON_VERSION py3
@@ -63,9 +63,9 @@ images:
     enable_test_promotion: true
     # context:
     #   <<: *INFERENCE_CONTEXT
-  BuildTensorflowGPUInferencePy3DockerImage:
+  BuildPaddlepaddleGPUInferencePy3DockerImage:
     <<: *INFERENCE_REPOSITORY
-    build: &TENSORFLOW_GPU_INFERENCE_PY3 false
+    build: &PADDLEPADDLE_GPU_INFERENCE_PY3 false
     image_size_baseline: 7738
     device_type: &DEVICE_TYPE gpu
     python_version: &DOCKER_PYTHON_VERSION py3
